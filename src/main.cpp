@@ -35,37 +35,35 @@ void setup() {
     radio.openWritingPipe(addresses[0]); // 00001
     radio.openReadingPipe(1, addresses[1]); // 00002
     radio.setPALevel(RF24_PA_MIN);
+
+    digitalWrite(MOTOR1_PIN1, HIGH);
+    digitalWrite(MOTOR1_PIN2, LOW);
+    digitalWrite(MOTOR2_PIN1, HIGH);
+    digitalWrite(MOTOR2_PIN2, LOW);
 }
 
 void loop() {
 
-    digitalWrite(MOTOR1_PIN1, HIGH);
-    digitalWrite(MOTOR1_PIN2, LOW);
-
-    digitalWrite(MOTOR2_PIN1, HIGH);
-    digitalWrite(MOTOR2_PIN2, LOW);
-
     delay(5);
 
-    // radio.startListening();
+    radio.startListening();
 
-    // if ( radio.available()) {
-    //     while (radio.available()) {
-    //         int angleV = 0;
-    //         radio.read(&angleV, sizeof(angleV));
-    //         // TODO: output to speed pins instead.
+    if ( radio.available()) {
+        while (radio.available()) {
+            int leftSpeed = 0, rightSpeed = 0;
 
-    //         digitalWrite(MOTOR1_PIN1, HIGH);
-    //         digitalWrite(MOTOR1_PIN2, LOW);
+            radio.read(&leftSpeed, sizeof(leftSpeed));
+            radio.read(&rightSpeed, sizeof(rightSpeed));
+            
+            digitalWrite(SPEED_PIN_1, leftSpeed);
+            digitalWrite(SPEED_PIN_2, rightSpeed);
+        }
 
-    //         digitalWrite(MOTOR2_PIN1, HIGH);
-    //         digitalWrite(MOTOR2_PIN2, LOW);
-    //     }
+        delay(5);
 
-    //     delay(5);
-
-    //     radio.stopListening();
-    //     buttonState = digitalRead(BUTTON);
-    //     radio.write(&buttonState, sizeof(buttonState));
-    // }
+        radio.stopListening();
+        
+        buttonState = digitalRead(BUTTON);
+        radio.write(&buttonState, sizeof(buttonState));
+    }
 }
